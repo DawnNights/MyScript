@@ -11,8 +11,14 @@ pub enum TokenType {
 	ident
 	// 表示一个整数
 	int
+	// 表示一个小数
+	float
+	// 表示一个字符
+	char
 	// 表示一个字符串
 	string
+	// 表示一个函数
+	function
 	// 表示赋值符号 '='
 	assign_symbol
 	// 表示感叹号 '!'
@@ -82,13 +88,16 @@ pub enum TokenType {
 }
 
 // 该方法返回 TokenType 枚举成员的字符串表示形式
-fn (t_type TokenType) str() string {
+pub fn (t_type TokenType) str() string {
 	return match t_type {
 		.unknow { 'UNKNOWN' }
 		.end { 'END' }
 		.ident { 'IDENT' }
 		.int { 'INT' }
+		.float { 'FLOAT' }
+		.char { 'CHAR' }
 		.string { 'STRING' }
+		.function { 'FUNCTION' }
 		.assign_symbol { '=' }
 		.bang_symbol { '!' }
 		.plus_symbol { '+' }
