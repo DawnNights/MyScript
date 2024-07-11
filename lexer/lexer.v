@@ -227,7 +227,7 @@ fn (l Lexer) get_char_type() token.TokenType {
 // read_char_token 读取并返回一个字符词法单元
 fn (mut l Lexer) read_char_token(mut tok token.Token) !token.Token {
 	if l.input[1] == 0 {
-		return error('字符表达式未正确闭合, 请将其填充完整')
+		return error('字符表达式未闭合, 请在表达式末尾添加 "`" 使之完整')
 	}
 
 	if l.input[1] == 96 {

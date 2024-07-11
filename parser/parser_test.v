@@ -5,14 +5,35 @@ import lexer
 
 fn test_main() {
 	l := lexer.new(r'
-null
-123
-0.123
-true
-false
-fn add (x, y) { x }
-[0, 1, 2, 3, 4]
-{ab: 123, bc: 321}
+null;
+123;
+0.123;
+true;
+false;
+"Hello, World";
+fn add (x, y) { x };
+[0, 1, 2, 3, 4];
+{ab: 123, bc: 321};
+1 + 1 * 2; (1 + 1) * 2;
+!123;
+-321;
+if (true) { 123 };
+if (false) { 123 } else { 456 };
+1 + 1;
+2 - 1;
+2 * 2;
+8 / 4;
+1 < 2;
+1 > 3;
+1 <= 3;
+2 >= 0;
+1 == 1;
+1 != 9;
+0 .. 9;
+1 in [0, 1, 2, 3, 4];
+add(1, 2, 3, 4);
+iter[123];
+iter.name;
 ')
 	mut p := new(l)!
 	program := p.parse_program()!

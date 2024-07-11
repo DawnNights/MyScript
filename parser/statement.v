@@ -10,7 +10,7 @@ fn (mut p Parser) parse_block_statement() !&ast.BlockStatement {
 
 	for p.cur.t_type != .right_brace {
 		if p.cur.t_type == .end {
-			return error('代码块语句未正确闭合, 请在语句末添加 "}" 确保其完整')
+			return error('代码块语句未闭合, 请在表达式末尾添加 "}" 使之完整')
 		}
 
 		block.body << p.parse_statement()!

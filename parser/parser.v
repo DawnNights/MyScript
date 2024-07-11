@@ -50,14 +50,14 @@ fn (mut p Parser) parse_statement() !ast.Statement {
 		else {
 			return ast.ExpressionStatement{
 				token: p.cur
-				expression: p.parse_expression(-10)!
+				expression: p.parse_expression(.lowest)!
 			}
 		}
 	}
 }
 
-// parse_expression 方法按优先级解析一条表达式并返回对应的节点
-fn (mut p Parser) parse_expression(prec int) !ast.Expression {
+// parse_expression 方法根据优先级解析表达式并返回相应的节点
+fn (mut p Parser) parse_expression(prec token.Precedence) !ast.Expression {
 	// 判断 prefix_fn_table 中是否有该词法单元的回调函数
 	if p.cur.t_type !in p.prefix_fn_table {
 		return error('没有找到 ${p.cur.t_type} 类型的词法解析函数')
@@ -66,7 +66,7 @@ fn (mut p Parser) parse_expression(prec int) !ast.Expression {
 	mut expr := prefix_fn()!
 
 	// 循环判断下一个词法单元是否为分号, 并比较当前词法单元和下一个词法单元的优先级
-	for p.next.t_type != .semicolon_symbol && prec < p.next.precedence() {
+	for p.next.t_type != .semicolon_symbol && prec.int() < p.next.precedence().int() {
 		if p.next.t_type !in p.infix_fn_table {
 			return expr
 		}
@@ -103,9 +103,29 @@ pub fn new(l &lexer.Lexer) !&Parser {
 			.function:     p.parse_function
 			.left_bracket: p.parse_list
 			.left_brace:   p.parse_table
+			.left_paren:   p.parse_group_expression
+			.bang_symbol:  p.parse_prefix_expression
+			.minus_symbol: p.parse_prefix_expression
+			.@if:          p.parse_if_expression
 		}
 
 		p.infix_fn_table = {
+			.assign_symbol:         p.parse_infix_expression
+			.plus_symbol:           p.parse_infix_expression
+			.minus_symbol:          p.parse_infix_expression
+			.asterisk_symbol:       p.parse_infix_expression
+			.slash_symbol:          p.parse_infix_expression
+			.less_symbol:           p.parse_infix_expression
+			.greater_symbol:        p.parse_infix_expression
+			.less_assign_symbol:    p.parse_infix_expression
+			.greater_assign_symbol: p.parse_infix_expression
+			.equal_symbol:          p.parse_infix_expression
+			.not_equal_symbol:      p.parse_infix_expression
+			.range_symbol:          p.parse_infix_expression
+			.@in:                   p.parse_infix_expression
+			.left_paren:            p.parse_call_expression
+			.point_symbol:          p.parse_index_expression
+			.left_bracket:          p.parse_index_expression
 		}
 
 		return p

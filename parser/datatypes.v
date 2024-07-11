@@ -3,6 +3,7 @@ module parser
 import ast
 import token
 
+// parse_ident 方法解析标识符表达式
 fn (mut p Parser) parse_ident() !ast.Expression {
 	return &ast.Identifier{
 		token: p.cur
@@ -10,6 +11,7 @@ fn (mut p Parser) parse_ident() !ast.Expression {
 	}
 }
 
+// parse_int 方法解析整数表达式
 fn (mut p Parser) parse_int() !ast.Expression {
 	return &ast.Int{
 		token: p.cur
@@ -17,6 +19,7 @@ fn (mut p Parser) parse_int() !ast.Expression {
 	}
 }
 
+// parse_float 方法解析浮点数表达式
 fn (mut p Parser) parse_float() !ast.Expression {
 	return &ast.Float{
 		token: p.cur
@@ -24,6 +27,7 @@ fn (mut p Parser) parse_float() !ast.Expression {
 	}
 }
 
+// parse_bool 方法解析布尔表达式
 fn (mut p Parser) parse_bool() !ast.Expression {
 	return &ast.Bool{
 		token: p.cur
@@ -31,31 +35,11 @@ fn (mut p Parser) parse_bool() !ast.Expression {
 	}
 }
 
+// parse_string 方法解析字符串表达式
 fn (mut p Parser) parse_string() !ast.Expression {
-	allow_token := [
-		token.TokenType.end,
-		.assign_symbol,
-		.plus_symbol,
-		.minus_symbol,
-		.asterisk_symbol,
-		.slash_symbol,
-		.less_symbol,
-		.greater_symbol,
-		.less_assign_symbol,
-		.greater_assign_symbol,
-		.equal_symbol,
-		.not_equal_symbol,
-		.colon_symbol,
-		.comma_symbol,
-		.semicolon_symbol,
-		.point_symbol,
-		.comment_symbol,
-		.left_paren,
-		.left_bracket,
-		.left_brace,
-	]
-	if p.next.t_type !in allow_token {
-		return error('${p.next.t_type} 不应该根在字符串定义后')
+
+	if p.next.t_type !in token.tokens_allow_after_string {
+		return error('${p.next.t_type} 不允许出现在字符串定义后')
 	}
 
 	return &ast.String{
@@ -64,6 +48,7 @@ fn (mut p Parser) parse_string() !ast.Expression {
 	}
 }
 
+// parse_function 方法解析函数表达式
 fn (mut p Parser) parse_function() !ast.Expression {
 	mut func := &ast.Function{
 		token: p.cur
@@ -113,7 +98,7 @@ fn (mut p Parser) parse_function() !ast.Expression {
 
 	// 判断是否有右侧圆括号
 	if p.next.t_type != .right_paren {
-		return error('参数表达式未正确闭合, 请在参数右侧添加 ")" 确保其完整')
+		return error('参数表达式未闭合, 请在表达式末尾添加 ")" 使之完整')
 	}
 	p.shift_token(1)!
 
@@ -129,6 +114,7 @@ fn (mut p Parser) parse_function() !ast.Expression {
 	return func
 }
 
+// parse_list 方法解析列表表达式
 fn (mut p Parser) parse_list() !ast.Expression {
 	mut list := &ast.List{
 		token: p.cur
@@ -142,23 +128,24 @@ fn (mut p Parser) parse_list() !ast.Expression {
 
 	// 获取第一个元素
 	p.shift_token(1)!
-	list.elems << p.parse_expression(-10)!
+	list.elems << p.parse_expression(.lowest)!
 
 	// 通过逗号判断是否有其它参数
 	for p.next.t_type == .comma_symbol {
 		p.shift_token(2)!
-		list.elems << p.parse_expression(-10)!
+		list.elems << p.parse_expression(.lowest)!
 	}
 
 	// 判断是否有右侧方括号
 	if p.next.t_type != .right_bracket {
-		return error(r'列表表达式未闭合, 请在表达式末尾加上 "]" 使之完整')
+		return error(r'列表表达式未闭合, 请在表达式末尾添加 "]" 使之完整')
 	}
 	p.shift_token(1)!
 
 	return list
 }
 
+// parse_table 方法解析字典表达式
 fn (mut p Parser) parse_table() !ast.Expression {
 	mut table := &ast.Table{
 		token: p.cur
@@ -166,21 +153,21 @@ fn (mut p Parser) parse_table() !ast.Expression {
 
 	for p.next.t_type != .right_brace {
 		p.shift_token(1)!
-		key := p.parse_expression(-10)!
+		key := p.parse_expression(.lowest)!
 
 		if p.next.t_type != .colon_symbol {
 			return error('定义 Table 对象时必须使用 ":" 进行键与值的配对, 而不是 "${p.next.t_raw}')
 		}
 
 		p.shift_token(2)!
-		value := p.parse_expression(-10)!
+		value := p.parse_expression(.lowest)!
 
 		table.pairs << [key, value]
 
 		if p.next.t_type == .comma_symbol {
 			p.shift_token(1)!
 		} else if p.next.t_type == .end {
-			return error('字典表达式未闭合, 请在表达式末尾加上 "}" 使之完整')
+			return error('字典表达式未闭合, 请在表达式末尾添加 "}" 使之完整')
 		} else if p.next.t_type != .right_brace {
 			return error('Table 对象的配对必须使用 `,` 分隔, 而不是 `${p.next.t_raw}`')
 		}
