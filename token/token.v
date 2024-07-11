@@ -15,7 +15,7 @@ pub fn (t Token) str() string {
 }
 
 // 根据 Token 的类型 t_type 进行匹配，返回相应的优先级值
-fn (t Token) precedence() int {
+pub fn (t Token) precedence() int {
 	return match t.t_type {
 		.assign_symbol { 10 }
 		.less_symbol, .greater_symbol, .less_assign_symbol { 20 }

@@ -47,6 +47,8 @@ pub:
 	token token.Token
 }
 
+pub fn (be BaseExpression) expression_node() {}
+
 pub fn (be BaseExpression) raw() string {
 	return be.token.t_raw
 }
@@ -60,6 +62,8 @@ pub struct BaseStatement {
 pub:
 	token token.Token
 }
+
+pub fn (bs BaseStatement) statement_node() {}
 
 pub fn (bs BaseStatement) raw() string {
 	return bs.token.t_raw

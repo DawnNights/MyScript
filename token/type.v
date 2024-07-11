@@ -3,8 +3,8 @@ module token
 // TokenType枚举
 // 该枚举定义了词法分析阶段可能识别出的所有词法单元类型
 pub enum TokenType {
-	// 表示未知的词法单元
-	unknow
+	// 表示未定义的词法单元
+	undefined
 	// 表示到达代码的末尾
 	end
 	// 表示一个合法的标识符
@@ -53,6 +53,8 @@ pub enum TokenType {
 	semicolon_symbol
 	// 表示点 '.'
 	point_symbol
+	// 表示单行注释符号 '#'
+	comment_symbol
 	// 表示反引号 '`'
 	back_quote
 	// 表示单引号 '''
@@ -90,7 +92,7 @@ pub enum TokenType {
 // 该方法返回 TokenType 枚举成员的字符串表示形式
 pub fn (t_type TokenType) str() string {
 	return match t_type {
-		.unknow { 'UNKNOWN' }
+		.undefined { 'UNDEFINED' }
 		.end { 'END' }
 		.ident { 'IDENT' }
 		.int { 'INT' }
@@ -115,6 +117,7 @@ pub fn (t_type TokenType) str() string {
 		.comma_symbol { ',' }
 		.semicolon_symbol { ';' }
 		.point_symbol { '.' }
+		.comment_symbol { '#' }
 		.back_quote { '`' }
 		.single_quote { "'" }
 		.double_quote { '"' }

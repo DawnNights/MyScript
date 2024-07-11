@@ -11,7 +11,7 @@ pub mut:
 // read_token 方法读取并返回一个词法单元
 pub fn (mut l Lexer) read_token() !token.Token {
 	mut tok := token.Token{
-		t_type: .unknow
+		t_type: .undefined
 		t_raw: ''
 	}
 
@@ -24,8 +24,8 @@ pub fn (mut l Lexer) read_token() !token.Token {
 		return tok
 	}
 
-	// 检查当前输入是否为关键字
-	if l.is_keyword(mut tok) {
+	// 检查当前输入是否为注释
+	if l.is_comment(mut tok) {
 		return tok
 	}
 
@@ -47,7 +47,7 @@ pub fn (mut l Lexer) read_token() !token.Token {
 	}
 
 	// 判断当前输入为单符号
-	if tok.t_type != .unknow {
+	if tok.t_type != .undefined {
 		tok.t_raw = tok.t_type.str()
 		l.input = l.input[1..]
 		return tok
@@ -71,26 +71,29 @@ pub fn (mut l Lexer) read_token() !token.Token {
 		return tok
 	}
 
-	// 判断当前输入为标识符
+	// 判断当前输入为标识符 | 关键字
 	mut unicode := rune(0)
 	mut size := 0
+	unicode, size = get_rune_from_string(l.input)
 
-	for {
-		unicode, size = get_rune_from_string(l.input)
-
-		if rune_is_valid(unicode) {
-			tok.t_raw = tok.t_raw + l.input[0..size]
-			l.input = l.input[size..]
-			continue
-		}
-
-		tok.t_type = .ident
+	if !rune_is_valid(unicode) {
+		tok.t_raw = unicode.str()
+		l.input = l.input[size..]
 		return tok
 	}
 
+	for rune_is_valid(unicode) {
+		tok.t_raw = tok.t_raw + l.input[0..size]
+		l.input = l.input[size..]
+		unicode, size = get_rune_from_string(l.input)
+	}
 
-	tok.t_raw = unicode.str()
-	l.input = l.input[size..]
+	// 检查当前输入是否为关键字
+	if l.is_keyword(mut tok) {
+		return tok
+	}
+
+	tok.t_type = .ident
 	return tok
 }
 
@@ -126,47 +129,64 @@ fn (mut l Lexer) is_symbols(mut tok token.Token) bool {
 
 // is_keyword 方法检查输入是否为关键字, 并相应地设置 Token 类型和原始字符串
 fn (mut l Lexer) is_keyword(mut tok token.Token) bool {
-	if l.input.starts_with('fn') {
-		tok.t_type = .function
-		return l.tok_set(mut tok, 'fn')
+	match tok.t_raw {
+		'fn' {
+			tok.t_type = .function
+			tok.t_raw = 'fn'
+		}
+
+		'true' {
+			tok.t_type = .@true
+			tok.t_raw = 'true'
+		}
+
+		'false' {
+			tok.t_type = .@false
+			tok.t_raw = 'false'
+		}
+
+		'return' {
+			tok.t_type = .@return
+			tok.t_raw = 'return'
+		}
+		'if' {
+			tok.t_type = .@if
+			tok.t_raw =  'if'
+		}
+		'else' {
+			tok.t_type = .@else
+			tok.t_raw = 'else'
+		}
+		'in' {
+			tok.t_type = .@in
+			tok.t_raw = 'in'
+		}
+		'for' {
+			tok.t_type = .@for
+			tok.t_raw = 'for'
+		}
+		else {
+			return false
+		}
 	}
 
-	if l.input.starts_with('true') {
-		tok.t_type = .@true
-		return l.tok_set(mut tok, 'true')
+	return true
+}
+
+// is_comment 方法检查输入是否为注释, 并相应地设置 Token 类型和原始字符串
+fn (mut l Lexer) is_comment(mut tok token.Token) bool {
+	if l.input[0] != 35 {
+		return false
 	}
 
-	if l.input.starts_with('false') {
-		tok.t_type = .@false
-		return l.tok_set(mut tok, 'false')
+	l.input = l.input[1..]
+	for l.input[0] != 0 && l.input[0] != 10 && l.input[0] != 13 {
+		tok.t_raw = tok.t_raw + unsafe { tos(l.input.str, 1) }
+		l.input = l.input[1..]
 	}
 
-	if l.input.starts_with('return') {
-		tok.t_type = .@return
-		return l.tok_set(mut tok, 'return')
-	}
-
-	if l.input.starts_with('if') {
-		tok.t_type = .@if
-		return l.tok_set(mut tok, 'if')
-	}
-
-	if l.input.starts_with('else') {
-		tok.t_type = .@else
-		return l.tok_set(mut tok, 'else')
-	}
-
-	if l.input.starts_with('in') {
-		tok.t_type = .@in
-		return l.tok_set(mut tok, 'in')
-	}
-
-	if l.input.starts_with('for') {
-		tok.t_type = .@for
-		return l.tok_set(mut tok, 'for')
-	}
-
-	return false
+	tok.t_type = .comment_symbol
+	return true
 }
 
 // tok_set 方法设置 Token 的原始字符串, 并从输入中移除相应的部分
@@ -200,7 +220,7 @@ fn (l Lexer) get_char_type() token.TokenType {
 		`]` { .right_bracket }
 		`{` { .left_brace }
 		`}` { .right_brace }
-		else { .unknow }
+		else { .undefined }
 	}
 }
 
@@ -241,6 +261,26 @@ fn (mut l Lexer) read_string_token(mut tok token.Token, quote_char u8) !token.To
 				return error('字符串表达式未正确闭合, 请在字符串的右侧加上单引号')
 			}
 			return error('字符串表达式未正确闭合, 请在字符串的右侧加上双引号')
+		}
+
+		// 转义字符 char(92) -> '\'
+		if l.input[0] == 92 {
+			esc := unsafe { tos(l.input.str + 1, get_utf8_size(l.input[1])) }
+
+			match esc {
+				'\\' { tok.t_raw = tok.t_raw + '\\' }
+				'r' { tok.t_raw = tok.t_raw + '\r' }
+				'n' { tok.t_raw = tok.t_raw + '\n' }
+				't' { tok.t_raw = tok.t_raw + '\t' }
+				'0' { tok.t_raw = tok.t_raw + '\0' }
+				else {
+					return error('字符 "\\${esc}" 无法进行转义')
+				}
+			}
+			
+
+			l.input = l.input[2..]
+			continue
 		}
 
 		tok.t_raw = tok.t_raw + unsafe { tos(l.input.str, 1) }
