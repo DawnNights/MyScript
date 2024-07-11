@@ -20,7 +20,7 @@ pub:
 }
 
 pub fn (ie InfixExpression) str() string {
-	return '(${ie.left} ${ie.token.t_raw} ${ie.left})'
+	return '(${ie.left} ${ie.token.t_raw} ${ie.right})'
 }
 
 // IfExpression 条件表达式结构体, 表示一个包含条件和两个分支的条件语句

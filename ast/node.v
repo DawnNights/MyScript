@@ -57,7 +57,7 @@ pub fn (be BaseExpression) str() string {
 	return be.token.t_raw
 }
 
-// BaseStatement 接口体是所有语句节点的基类
+// BaseStatement 结构体是所有语句节点的基类
 pub struct BaseStatement {
 pub:
 	token token.Token

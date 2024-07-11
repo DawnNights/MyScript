@@ -1,6 +1,7 @@
 module parser
 
 import ast
+import lexer
 import token
 
 // parse_ident 方法解析标识符表达式
@@ -35,9 +36,21 @@ fn (mut p Parser) parse_bool() !ast.Expression {
 	}
 }
 
+// parse_char 方法解析字符表达式
+fn (mut p Parser) parse_char() !ast.Expression {
+	if p.next.t_type !in token.tokens_allow_after_string {
+		return error('${p.next.t_type} 不允许出现在字符定义后')
+	}
+
+	unicode, _ := lexer.get_rune_from_string(p.cur.t_raw)
+	return &ast.Char{
+		token: p.cur
+		value: unicode
+	}
+}
+
 // parse_string 方法解析字符串表达式
 fn (mut p Parser) parse_string() !ast.Expression {
-
 	if p.next.t_type !in token.tokens_allow_after_string {
 		return error('${p.next.t_type} 不允许出现在字符串定义后')
 	}
@@ -109,7 +122,9 @@ fn (mut p Parser) parse_function() !ast.Expression {
 	}
 
 	p.shift_token(1)!
+	p.context << 'FUNCTION'
 	func.body = p.parse_block_statement()!
+	p.context.delete(p.context.len - 1)
 
 	return func
 }

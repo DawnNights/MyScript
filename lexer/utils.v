@@ -22,7 +22,7 @@ fn get_utf8_size(c u8) u8 {
 }
 
 // 从 string 中获取一个 rune, 返回 rune 的值以及 rune 占用的 utf8 字节数
-fn get_rune_from_string(str string) (rune, int) {
+pub fn get_rune_from_string(str string) (rune, int) {
 	match get_utf8_size(str[0]) {
 		1 {
 			return rune(str[0]), 1
@@ -54,6 +54,50 @@ fn get_rune_from_string(str string) (rune, int) {
 	}
 }
 
+// 通过判断 UTF8 首字节编码数量提取每个字符并作为 rune 切片返回
+pub fn string_to_runes(_string string) []rune {
+	unsafe {
+		mut str := _string.str
+		mut input := []rune{}
+
+		for str < _string.str + _string.len {
+			// 单字节转换为 rune
+			if (*str & 0x80) == 0x00 {
+				input << rune(*str)
+				str = str + 1
+			}
+			// 双字节转换为 rune
+			else if (*str & 0xe0) == 0xc0 {
+				b1 := int(*str & 0x1f)
+				b2 := int(*(str + 1) & 0x3f)
+
+				input << rune(b1 << 6 | b2)
+				str = str + 2
+			}
+			// 三字节转换为 rune
+			else if (*str & 0xf0) == 0xe0 {
+				b1 := int(*str & 0x0f)
+				b2 := int(*(str + 1) & 0x3f)
+				b3 := int(*(str + 2) & 0x3f)
+
+				input << rune(b1 << 12 | b2 << 6 | b3)
+				str = str + 3
+			}
+			// 四字节转换为 rune
+			else if (*str & 0xf8) == 0xf0 {
+				b1 := int(*str & 0x07)
+				b2 := int(*(str + 1) & 0x3f)
+				b3 := int(*(str + 2) & 0x3f)
+				b4 := int(*(str + 3) & 0x3f)
+
+				input << rune(b1 << 18 | b2 << 12 | b3 << 6 | b4)
+				str = str + 4
+			}
+		}
+
+		return input
+	}
+}
 
 // 判断是否为数字
 fn rune_is_digit(r rune) bool {

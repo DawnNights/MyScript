@@ -28,11 +28,23 @@ pub:
 	value bool
 }
 
+// Char 字符结构体, 表示程序中的字符常量
+pub struct Char {
+	BaseExpression
+pub:
+	value rune
+}
+
 // String 字符串结构体, 表示程序中的字符串常量
 pub struct String {
 	BaseExpression
 pub:
 	value string
+}
+
+pub fn (s String) str() string {
+	str := s.value.replace('"', '\\"')
+	return '"${str}"'
 }
 
 // Function 函数结构体, 表示一个包含函数名、参数列表和函数体的函数定义

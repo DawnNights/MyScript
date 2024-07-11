@@ -10,11 +10,13 @@ null;
 0.123;
 true;
 false;
+`H`;
 "Hello, World";
-fn add (x, y) { x };
+fn add (x, y) { return x + y };
 [0, 1, 2, 3, 4];
 {ab: 123, bc: 321};
-1 + 1 * 2; (1 + 1) * 2;
+1 + 1 * 2;
+(1 + 1) * 2;
 !123;
 -321;
 if (true) { 123 };
@@ -34,9 +36,13 @@ if (false) { 123 } else { 456 };
 add(1, 2, 3, 4);
 iter[123];
 iter.name;
+iter.hello();
 ')
 	mut p := new(l)!
-	program := p.parse_program()!
+	program := p.parse_program() or { 
+		println("ERROR: " + err.msg())
+		return
+	 }
 
 	for stmt in program.body {
 		if stmt is ast.ExpressionStatement {

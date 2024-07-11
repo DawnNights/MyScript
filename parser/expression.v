@@ -101,6 +101,11 @@ fn (mut p Parser) parse_call_expression(callable ast.Expression) !ast.Expression
 		arguments: []
 	}
 
+	// 判断 callable 是否为可调用对象
+	if callable.token.t_type in [.int, .float, .char, .string] {
+		return error('${callable} 不是一个可调用对象')
+	}
+
 	// 若下个词法单元为右圆括号则表示没有参数
 	if p.next.t_type == .right_paren {
 		p.shift_token(1)!
@@ -138,14 +143,50 @@ fn (mut p Parser) parse_index_expression(left ast.Expression) !ast.Expression {
 		index: p.parse_expression(.lowest)!
 	}
 
-	if expr.token.t_type == .point_symbol {
-		return expr
-	}
-
 	if p.next.t_type != .right_bracket {
-		return error(r'索引表达式未闭合, 请在表达式末尾添加 "]" 使之完整')
+		return error(r'索引表达式应在完整的 "[]" 中')
 	}
 
 	p.shift_token(1)!
 	return expr
+}
+
+// parse_point_expression 方法解析点运算符表达式并返回相应的节点
+// 点运算符表达式通常用于访问对象或结构体的成员变量或方法
+fn (mut p Parser) parse_point_expression(left ast.Expression) !ast.Expression {
+	tok := p.cur
+	p.shift_token(1)!
+	mut right := p.parse_expression(.lowest)!
+
+	if mut right is ast.Identifier {
+		return &ast.IndexExpression{
+			token: tok
+			left: left
+			index: ast.String{
+				token: right.token
+				value: right.name
+			}
+		}
+	}
+
+	if mut right is ast.CallExpression {
+		right.arguments.prepend(left)
+
+		callable := &ast.IndexExpression{
+			token: tok
+			left: left
+			index: ast.String{
+				token: right.callable.token
+				value: right.callable.token.t_raw
+			}
+		}
+
+		return &ast.CallExpression{
+			token: right.token
+			callable: callable
+			arguments: right.arguments
+		}
+	}
+
+	return error('字面量 "${right}" 无法作为 "." 运算符的索引值')
 }

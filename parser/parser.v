@@ -16,6 +16,7 @@ mut:
 	next            token.Token
 	prefix_fn_table map[token.TokenType]ExprParser      = {}
 	infix_fn_table  map[token.TokenType]InfixExprParser = {}
+	context         []string = []
 }
 
 // shift_token 方法更新当前和下一个词法单元
@@ -42,16 +43,13 @@ pub fn (mut p Parser) parse_program() !&ast.Program {
 fn (mut p Parser) parse_statement() !ast.Statement {
 	match p.cur.t_type {
 		.@return {
-			return error('暂未实现 return 语句解析')
+			return p.parse_return_statement()!
 		}
 		.@for {
 			return error('暂未实现 for 语句解析')
 		}
 		else {
-			return ast.ExpressionStatement{
-				token: p.cur
-				expression: p.parse_expression(.lowest)!
-			}
+			return p.parse_expr_statement()!
 		}
 	}
 }
@@ -76,11 +74,6 @@ fn (mut p Parser) parse_expression(prec token.Precedence) !ast.Expression {
 		expr = infix_fn(expr)!
 	}
 
-	// 跳过分号
-	if p.next.t_type == .semicolon_symbol {
-		p.shift_token(1)!
-	}
-
 	return expr
 }
 
@@ -99,6 +92,7 @@ pub fn new(l &lexer.Lexer) !&Parser {
 			.float:        p.parse_float
 			.@true:        p.parse_bool
 			.@false:       p.parse_bool
+			.char:         p.parse_char
 			.string:       p.parse_string
 			.function:     p.parse_function
 			.left_bracket: p.parse_list
@@ -124,8 +118,8 @@ pub fn new(l &lexer.Lexer) !&Parser {
 			.range_symbol:          p.parse_infix_expression
 			.@in:                   p.parse_infix_expression
 			.left_paren:            p.parse_call_expression
-			.point_symbol:          p.parse_index_expression
 			.left_bracket:          p.parse_index_expression
+			.point_symbol:          p.parse_point_expression
 		}
 
 		return p
