@@ -4,9 +4,11 @@ import hash
 
 // 唯一布尔值
 pub const only_true = Object(&Bool{
+	datatype: .bool
 	value: true
 })
 pub const only_false = Object(&Bool{
+	datatype: .bool
 	value: false
 })
 
@@ -14,8 +16,7 @@ pub const only_false = Object(&Bool{
 pub struct Bool {
 	BaseObject
 pub:
-	value    bool
-	datatype DataType = .bool
+	value bool
 }
 
 pub fn (b Bool) str() string {
@@ -24,12 +25,14 @@ pub fn (b Bool) str() string {
 
 pub fn (b Bool) to_int() !Object {
 	return &Int{
+		datatype: .int
 		value: i64(b.value)
 	}
 }
 
 pub fn (b Bool) to_float() !Object {
 	return &Float{
+		datatype: .float
 		value: f64(b.value)
 	}
 }

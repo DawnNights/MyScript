@@ -7,7 +7,6 @@ pub struct Int {
 	BaseObject
 pub:
 	value    i64
-	datatype DataType = .int
 }
 
 pub fn (i Int) str() string {
@@ -20,6 +19,7 @@ pub fn (i Int) to_int() !Object {
 
 pub fn (i Int) to_float() !Object {
 	return &Float{
+		datatype: .float
 		value: f64(i.value)
 	}
 }
@@ -34,6 +34,7 @@ pub fn (i Int) to_bool() !Object {
 
 pub fn (i Int) to_char() !Object {
 	return &Char{
+		datatype: .char
 		value: rune(i.value)
 	}
 }
@@ -44,6 +45,13 @@ pub fn (i Int) to_string() !Object {
 
 pub fn (i Int) negate() !Object {
 	return i.to_bool()!.negate()
+}
+
+pub fn (i Int) negative() !Object {
+	return &Int{
+		datatype: .int
+		value: -i.value
+	}
 }
 
 pub fn (i Int) hash() !u64 {
@@ -60,21 +68,25 @@ pub fn (i Int) add(obj Object) !Object {
 	return match obj {
 		Float {
 			Object(&Float{
+				datatype: .float
 				value: i.value + obj.value
 			})
 		}
 		Int {
 			Object(&Int{
+				datatype: .int
 				value: i.value + obj.value
 			})
 		}
 		Char {
 			Object(&Int{
+				datatype: .int
 				value: i.value + obj.value
 			})
 		}
 		Bool {
 			Object(&Int{
+				datatype: .int
 				value: i.value + i64(obj.value)
 			})
 		}
@@ -88,21 +100,25 @@ pub fn (i Int) sub(obj Object) !Object {
 	return match obj {
 		Float {
 			Object(&Float{
+				datatype: .float
 				value: i.value - obj.value
 			})
 		}
 		Int {
 			Object(&Int{
+				datatype: .int
 				value: i.value - obj.value
 			})
 		}
 		Char {
 			Object(&Int{
+				datatype: .int
 				value: i.value - obj.value
 			})
 		}
 		Bool {
 			Object(&Int{
+				datatype: .int
 				value: i.value - i64(obj.value)
 			})
 		}
@@ -116,16 +132,19 @@ pub fn (i Int) mul(obj Object) !Object {
 	return match obj {
 		Float {
 			Object(&Float{
+				datatype: .float
 				value: i.value * obj.value
 			})
 		}
 		Int {
 			Object(&Int{
+				datatype: .int
 				value: i.value * obj.value
 			})
 		}
 		Char {
 			Object(&Int{
+				datatype: .int
 				value: i.value * obj.value
 			})
 		}
@@ -134,6 +153,7 @@ pub fn (i Int) mul(obj Object) !Object {
 				Object(&i)
 			} else {
 				Object(&Int{
+				datatype: .int
 					value: 0
 				})
 			}
@@ -152,6 +172,7 @@ pub fn (i Int) div(obj Object) !Object {
 			}
 
 			return Object(&Float{
+				datatype: .float
 				value: i.value / obj.value
 			})
 		}
@@ -161,6 +182,7 @@ pub fn (i Int) div(obj Object) !Object {
 			}
 
 			return Object(&Int{
+				datatype: .int
 				value: i.value / obj.value
 			})
 		}
@@ -170,6 +192,7 @@ pub fn (i Int) div(obj Object) !Object {
 			}
 
 			return Object(&Int{
+				datatype: .int
 				value: i.value / obj.value
 			})
 		}

@@ -7,6 +7,8 @@ pub enum DataType {
 	int
 	// 浮点数类型
 	float
+	// 范围类型
+	range
 	// 布尔类型
 	bool
 	// 字符类型
@@ -21,8 +23,6 @@ pub enum DataType {
 	table
 	// 空类型
 	null
-	// 内置函数类型
-	builtin_function
 }
 
 // 该方法返回 DataType 枚举成员的字符串表示形式
@@ -30,6 +30,7 @@ pub fn (dt DataType) str() string {
 	return match dt {
 		.int { 'int' }
 		.float { 'float' }
+		.range { 'range' }
 		.bool { 'bool' }
 		.char { 'char' }
 		.string { 'string' }
@@ -37,6 +38,5 @@ pub fn (dt DataType) str() string {
 		.list { 'list' }
 		.table { 'table' }
 		.null { 'null' }
-		.builtin_function { 'function' }
 	}
 }

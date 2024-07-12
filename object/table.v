@@ -4,9 +4,7 @@ module object
 pub struct Table {
 	BaseObject
 pub mut:
-	pairs map[u64][]Object
-pub:
-	datatype DataType = .table
+	pairs map[u64][]Object = {}
 }
 
 pub fn (t Table) str() string {
@@ -36,10 +34,16 @@ pub fn (t Table) to_string() !Object {
 }
 
 pub fn (t Table) to_list() !Object {
-	mut list := List{elems: []}
-	
+	mut list := List{
+		datatype: .list
+		elems: []
+	}
+
 	for pair in t.pairs.values() {
-		list.elems << List{elems: [pair[0], pair[1]]}
+		list.elems << List{
+			datatype: .list
+			elems: [pair[0], pair[1]]
+		}
 	}
 	return list
 }

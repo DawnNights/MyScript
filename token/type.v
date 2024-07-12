@@ -43,7 +43,7 @@ pub enum TokenType {
 	equal_symbol
 	// 表示不等号 '!='
 	not_equal_symbol
-	// 表示范围符号 '..'
+	// 表示范围腐蚀 'range'
 	range_symbol
 	// 表示冒号 ':'
 	colon_symbol

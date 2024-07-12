@@ -7,7 +7,6 @@ pub struct Float {
 	BaseObject
 pub:
 	value    f64
-	datatype DataType = .float
 }
 
 pub fn (f Float) str() string {
@@ -16,6 +15,7 @@ pub fn (f Float) str() string {
 
 pub fn (f Float) to_int() !Object {
 	return &Int{
+		datatype: .int
 		value: i64(f.value)
 	}
 }
@@ -40,6 +40,13 @@ pub fn (f Float) negate() !Object {
 	return f.to_bool()!.negate()
 }
 
+pub fn (f Float) negative() !Object {
+	return &Float{
+		datatype: .float
+		value: -f.value
+	}
+}
+
 pub fn (f Float) hash() !u64 {
 	mut byte_array := []u8{len: 8}
 	value := i64(f.value)
@@ -55,21 +62,25 @@ pub fn (f Float) add(obj Object) !Object {
 	return match obj {
 		Float {
 			Object(&Float{
+				datatype: .float
 				value: f.value + obj.value
 			})
 		}
 		Int {
 			Object(&Float{
+				datatype: .float
 				value: f.value + obj.value
 			})
 		}
 		Char {
 			Object(&Float{
+				datatype: .float
 				value: f.value + f64(obj.value)
 			})
 		}
 		Bool {
 			Object(&Float{
+				datatype: .float
 				value: f.value + f64(obj.value)
 			})
 		}
@@ -83,21 +94,25 @@ pub fn (f Float) sub(obj Object) !Object {
 	return match obj {
 		Float {
 			Object(&Float{
+				datatype: .float
 				value: f.value - obj.value
 			})
 		}
 		Int {
 			Object(&Float{
+				datatype: .float
 				value: f.value - obj.value
 			})
 		}
 		Char {
 			Object(&Float{
+				datatype: .float
 				value: f.value - f64(obj.value)
 			})
 		}
 		Bool {
 			Object(&Float{
+				datatype: .float
 				value: f.value - f64(obj.value)
 			})
 		}
@@ -111,16 +126,19 @@ pub fn (f Float) mul(obj Object) !Object {
 	return match obj {
 		Float {
 			Object(&Float{
+				datatype: .float
 				value: f.value * obj.value
 			})
 		}
 		Int {
 			Object(&Float{
+				datatype: .float
 				value: f.value * obj.value
 			})
 		}
 		Char {
 			Object(&Float{
+				datatype: .float
 				value: f.value * f64(obj.value)
 			})
 		}
@@ -129,6 +147,7 @@ pub fn (f Float) mul(obj Object) !Object {
 				Object(&f)
 			} else {
 				Object(&Float{
+					datatype: .float
 					value: 0
 				})
 			}
@@ -147,6 +166,7 @@ pub fn (f Float) div(obj Object) !Object {
 			}
 
 			return Object(&Float{
+				datatype: .float
 				value: f.value / obj.value
 			})
 		}
@@ -156,6 +176,7 @@ pub fn (f Float) div(obj Object) !Object {
 			}
 
 			return Object(&Float{
+				datatype: .float
 				value: f.value / obj.value
 			})
 		}
@@ -165,6 +186,7 @@ pub fn (f Float) div(obj Object) !Object {
 			}
 
 			return Object(&Float{
+				datatype: .float
 				value: f.value / f64(obj.value)
 			})
 		}

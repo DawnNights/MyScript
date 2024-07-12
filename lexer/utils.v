@@ -99,6 +99,17 @@ pub fn string_to_runes(_string string) []rune {
 	}
 }
 
+// 将一个 rune 数组转换成字符串
+pub fn runes_to_string(runes []rune) string {
+	mut result := ''
+
+	for r in runes {
+		result += r.str()
+	}
+
+	return result
+}
+
 // 判断是否为数字
 fn rune_is_digit(r rune) bool {
 	return `0` <= r && r <= `9`

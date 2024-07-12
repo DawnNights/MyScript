@@ -53,21 +53,31 @@ pub fn (mut l Lexer) read_token() !token.Token {
 		return tok
 	}
 
-	// 判断当前输入为 整数 | 小数
+	// 判断当前输入为整数 | 小数
 	if l.input[0].is_digit() {
-		for l.input[0].is_digit() || l.input[0] == 46 {
-			if l.input[0] == 46 {
-				tok.t_type = .float
-			}
-
+		tok.t_type = .int
+		for l.input[0].is_digit() {
 			tok.t_raw = tok.t_raw + unsafe { tos(l.input.str, 1) }
 			l.input = l.input[1..]
 		}
 
-		if tok.t_type != .float {
-			tok.t_type = .int
+		// 遇到范围符号单元直接返回
+		if l.input.starts_with('..') {
+			return tok
 		}
 
+		// 判断为小数
+		if l.input[0] == 46 && l.input[1].is_digit() {
+			tok.t_type = .float
+			l.input = l.input[1..]
+			tok.t_raw = tok.t_raw + '.'
+
+			for l.input[0].is_digit() {
+				tok.t_raw = tok.t_raw + unsafe { tos(l.input.str, 1) }
+				l.input = l.input[1..]
+			}
+		}
+		
 		return tok
 	}
 

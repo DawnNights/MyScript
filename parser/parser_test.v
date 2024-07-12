@@ -14,7 +14,7 @@ false;
 "Hello, World";
 fn add (x, y) { return x + y };
 [0, 1, 2, 3, 4];
-{ab: 123, bc: 321};
+{ab: abc(), bc: 321};
 1 + 1 * 2;
 (1 + 1) * 2;
 !123;
@@ -36,7 +36,7 @@ if (false) { 123 } else { 456 };
 add(1, 2, 3, 4);
 iter[123];
 iter.name;
-iter.hello();
+a.hello();
 ')
 	mut p := new(l)!
 	program := p.parse_program() or { 

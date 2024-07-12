@@ -6,10 +6,9 @@ import ast
 pub struct Function {
 	BaseObject
 pub:
-	params   []&ast.Identifier
-	body     &ast.BlockStatement
-	scope    &Scope
-	datatype DataType = .function
+	params   []&ast.Identifier   = []
+	body     &ast.BlockStatement = unsafe { nil }
+	scope    &Scope   = unsafe { nil }
 }
 
 pub fn (f Function) str() string {

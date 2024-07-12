@@ -168,10 +168,17 @@ fn (mut p Parser) parse_table() !ast.Expression {
 
 	for p.next.t_type != .right_brace {
 		p.shift_token(1)!
-		key := p.parse_expression(.lowest)!
+		mut key := p.parse_expression(.lowest)!
+
+		if mut key is ast.Identifier {
+			key = ast.String{
+				token: key.token
+				value: key.token.t_raw
+			}
+		}
 
 		if p.next.t_type != .colon_symbol {
-			return error('定义 Table 对象时必须使用 ":" 进行键与值的配对, 而不是 "${p.next.t_raw}')
+			return error('定义 Table 对象时必须使用 ":" 进行键与值的配对')
 		}
 
 		p.shift_token(2)!
@@ -184,7 +191,7 @@ fn (mut p Parser) parse_table() !ast.Expression {
 		} else if p.next.t_type == .end {
 			return error('字典表达式未闭合, 请在表达式末尾添加 "}" 使之完整')
 		} else if p.next.t_type != .right_brace {
-			return error('Table 对象的配对必须使用 `,` 分隔, 而不是 `${p.next.t_raw}`')
+			return error('Table 对象的配对必须使用 `,` 分隔')
 		}
 	}
 

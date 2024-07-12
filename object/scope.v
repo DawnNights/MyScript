@@ -5,11 +5,15 @@ pub struct Scope {
 pub:
 	parent &Scope = unsafe { nil }
 pub mut:
-	store map[string]Object
+	store map[string]Object = {}
 }
 
 // get 方法从作用域中获取指定名称的对象
 pub fn (s &Scope) get(name string) !Object {
+	if name == 'null' {
+		return only_null
+	}
+
 	if name !in s.store {
 		if s.parent != unsafe { nil } {
 			return s.parent.get(name)

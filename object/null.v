@@ -1,13 +1,11 @@
 module object
 
 // 唯一空值
-pub const only_null = Object(&Null{})
+pub const only_null = Object(&Null{datatype: .null})
 
 // Null 结构体表示空对象
 pub struct Null {
 	BaseObject
-pub:
-	datatype DataType = .null
 }
 
 fn (n Null) str() string {

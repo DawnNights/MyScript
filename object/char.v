@@ -7,7 +7,6 @@ pub struct Char {
 	BaseObject
 pub:
 	value    rune
-	datatype DataType = .char
 }
 
 pub fn (c Char) str() string {
@@ -16,12 +15,14 @@ pub fn (c Char) str() string {
 
 pub fn (c Char) to_int() !Object {
 	return &Int{
+		datatype: .int
 		value: i64(c.value)
 	}
 }
 
 pub fn (c Char) to_float() !Object {
 	return &Float{
+		datatype: .float
 		value: f64(c.value)
 	}
 }

@@ -156,7 +156,7 @@ fn (mut p Parser) parse_index_expression(left ast.Expression) !ast.Expression {
 fn (mut p Parser) parse_point_expression(left ast.Expression) !ast.Expression {
 	tok := p.cur
 	p.shift_token(1)!
-	mut right := p.parse_expression(.lowest)!
+	mut right := p.parse_expression(.prefix)!
 
 	if mut right is ast.Identifier {
 		return &ast.IndexExpression{

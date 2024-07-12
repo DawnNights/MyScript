@@ -56,11 +56,11 @@ mut:
 // BaseObject 结构体是所有对象的基类
 pub struct BaseObject {
 pub:
-	datatype DataType
+	datatype DataType @[required]
 }
 
 pub fn (bo BaseObject) str() string {
-	return 'undefined'
+	return bo.datatype.str()
 }
 
 pub fn (bo BaseObject) to_int() !Object {
@@ -149,4 +149,11 @@ pub fn (bo BaseObject) get(idx Object) !Object {
 
 pub fn (mut bo BaseObject) set(idx Object, obj Object) ! {
 	return error('${bo.datatype} 类型的对象无法通过索引设置值')
+}
+
+// ReturnObject 结构体是 return 语句返回对象的封装
+pub struct ReturnObject {
+	BaseObject
+pub:
+	value Object
 }

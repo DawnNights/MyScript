@@ -9,7 +9,6 @@ pub struct String {
 pub:
 	value    string
 	unicodes []rune
-	datatype DataType = .string
 }
 
 pub fn (s String) str() string {
@@ -31,11 +30,13 @@ pub fn (s String) to_string() !Object {
 
 pub fn (s String) to_list() !Object {
 	mut list := List{
+		datatype: .list
 		elems: []
 	}
 
 	for u in s.unicodes {
 		list.elems << Object(&Char{
+			datatype: .char
 			value: u
 		})
 	}
@@ -72,7 +73,7 @@ pub fn (s String) mul(obj Object) !Object {
 }
 
 pub fn (s String) equal(obj Object) !Object {
-	if obj is String{
+	if obj is String {
 		if s.value == obj.value {
 			return only_true
 		}
@@ -88,26 +89,55 @@ pub fn (s String) not_equal(obj Object) !Object {
 }
 
 pub fn (s String) get(idx Object) !Object {
-	if idx !is Int {
-		return error('字符串的索引必须是 int 类型的值')
+	if idx is Int {
+		mut i := idx.value
+		if i < 0 {
+			i = s.unicodes.len + i
+		}
+
+		if i > s.unicodes.len - 1 || i < 0 {
+			return error('索引的值超出了字符串的长度')
+		}
+
+		return Char{
+			datatype: .char
+			value: s.unicodes[i]
+		}
+	} else if idx is Range {
+		mut start := idx.start
+		if start < 0 {
+			start = s.unicodes.len + start
+		}
+
+		mut end := idx.end
+		if end < 0 {
+			end = s.unicodes.len + end
+		}
+
+		if start > s.unicodes.len || start < 0 {
+			return error('索引的左值超出了字符串的长度')
+		} else if end > s.unicodes.len || end < 0 {
+			return error('索引的右值超出了字符串的长度')
+		}
+
+		mut unicodes := []rune{}
+		for i := start; i < end; i++ {
+			unicodes << s.unicodes[i]
+		}
+
+		return &String{
+			datatype: .string
+			value: lexer.runes_to_string(unicodes)
+			unicodes: unicodes
+		}
 	}
 
-	mut i := (idx as Int).value
-	if i < 0 {
-		i = s.unicodes.len + i
-	}
-
-	if i > s.unicodes.len - 1 || i < 0 {
-		return error('索引的值超出了字符串的范围')
-	}
-
-	return Char{
-		value: s.unicodes[i]
-	}
+	return error('字符串的索引必须是 int | range 类型的值')
 }
 
 pub fn new_string(str string) Object {
 	return &String{
+		datatype: .string
 		value: str
 		unicodes: lexer.string_to_runes(str)
 	}
