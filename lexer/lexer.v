@@ -175,6 +175,10 @@ fn (mut l Lexer) is_keyword(mut tok token.Token) bool {
 			tok.t_type = .@for
 			tok.t_raw = 'for'
 		}
+		'while' {
+			tok.t_type = .while
+			tok.t_raw = 'while'
+		}
 		else {
 			return false
 		}

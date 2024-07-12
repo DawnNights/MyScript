@@ -19,7 +19,7 @@ pub fn (s &Scope) get(name string) !Object {
 			return s.parent.get(name)
 		}
 
-		return error('标识符 `${name}` 没有绑定的值')
+		return error('标识符 "${name}" 没有绑定的值')
 	}
 
 	return s.store[name]

@@ -48,6 +48,24 @@ pub fn (t Table) to_list() !Object {
 	return list
 }
 
+pub fn (t Table) equal(obj Object) !Object {
+	if obj is Table{
+		if t == obj {
+			return only_true
+		}
+	}
+
+	return only_false
+}
+
+pub fn (t Table) not_equal(obj Object) !Object {
+	if t.equal(obj)! == only_true {
+		return only_false
+	}
+
+	return only_true
+}
+
 pub fn (t Table) has(obj Object) !Object {
 	hash := obj.hash() or { return only_false }
 

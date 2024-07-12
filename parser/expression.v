@@ -56,10 +56,9 @@ fn (mut p Parser) parse_if_expression() !ast.Expression {
 	if p.next.t_type != .left_paren {
 		return error(r'if表达式的条件表达式应在完整的 "()" 中')
 	}
-	p.shift_token(1)!
+	p.shift_token(2)!
 
 	// 解析 if 条件表达式
-	p.shift_token(1)!
 	expr.condition = p.parse_expression(.lowest)!
 
 	// 判断是否有右侧圆括号
@@ -70,7 +69,7 @@ fn (mut p Parser) parse_if_expression() !ast.Expression {
 
 	// 判断是否有左侧大括号
 	if p.next.t_type != .left_brace {
-		return error(r'if 表达式执行的代码块语句应在完整的 "{}" 中')
+		return error(r'if 表达式执行的代码块内容应在完整的 "{}" 中')
 	}
 	p.shift_token(1)!
 
@@ -82,7 +81,7 @@ fn (mut p Parser) parse_if_expression() !ast.Expression {
 
 		// 判断是否有左侧大括号
 		if p.next.t_type != .left_brace {
-			return error(r'else 表达式执行的代码块语句应在完整的 "{}" 中')
+			return error(r'else 表达式执行的代码块内容应在完整的 "{}" 中')
 		}
 		p.shift_token(1)!
 

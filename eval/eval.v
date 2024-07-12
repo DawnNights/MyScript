@@ -54,6 +54,12 @@ pub fn eval(node ast.Node, mut scope object.Scope) !object.Object {
 		ast.ReturnStatement {
 			return eval_return_statement(node, mut scope)
 		}
+		ast.ForStatement {
+			return eval_for_statement(node, mut scope)
+		}
+		ast.WhileStatement{
+			return eval_while_statement(node, mut scope)
+		}
 		ast.PrefixExpression {
 			return eval_prefix_expression(node, mut scope)
 		}

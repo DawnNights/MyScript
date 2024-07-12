@@ -4,6 +4,14 @@ import ast
 import lexer
 import token
 
+// parse_comment 方法解析注释内容
+fn (mut p Parser) parse_comment() !ast.Expression {
+	return &ast.Comment{
+		token: p.cur
+		content: p.cur.t_raw
+	}
+}
+
 // parse_ident 方法解析标识符表达式
 fn (mut p Parser) parse_ident() !ast.Expression {
 	return &ast.Identifier{

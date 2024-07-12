@@ -38,6 +38,36 @@ pub fn (l List) negate() !Object {
 	return l.to_bool()!.negate()
 }
 
+pub fn (l List) add(obj Object) !Object {
+	mut elems := l.elems.clone()
+	
+	if obj != only_null {
+		elems << obj
+	}
+	return List{
+		datatype: .list
+		elems: elems
+	}
+}
+
+pub fn (l List) equal(obj Object) !Object {
+	if obj is List{
+		if l == obj {
+			return only_true
+		}
+	}
+
+	return only_false
+}
+
+pub fn (l List) not_equal(obj Object) !Object {
+	if l.equal(obj)! == only_true {
+		return only_false
+	}
+
+	return only_true
+}
+
 pub fn (l List) has(obj Object) !Object {
 	for elem in l.elems {
 		if elem == obj {

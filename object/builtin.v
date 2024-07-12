@@ -1,10 +1,12 @@
 module object
 
+import os
+
 pub struct BuiltinFunction {
 	BaseObject
 pub:
-	str      string
-	func     fn (...Object) !Object = unsafe { nil }
+	str  string
+	func fn (...Object) !Object = unsafe { nil }
 }
 
 pub fn (bf BuiltinFunction) str() string {
@@ -156,14 +158,14 @@ pub fn get_builtin_scope() &Scope {
 			}
 
 			arg := args[0]
-			if arg is List{
+			if arg is List {
 				return List{
 					datatype: .list
 					elems: arg.elems.clone()
 				}
 			}
 
-			if arg is Table{
+			if arg is Table {
 				return Table{
 					datatype: .table
 					pairs: arg.pairs.clone()
@@ -171,6 +173,74 @@ pub fn get_builtin_scope() &Scope {
 			}
 
 			return arg
+		}
+	})
+
+	// 实现 print 函数打印对象
+	scope.set('print', BuiltinFunction{
+		datatype: .function
+		str: 'fn print(args ...object)'
+		func: fn (args ...Object) !Object {
+			mut out := []string{}
+			for arg in args {
+				out << arg.str()
+			}
+			println(out.join(' '))
+
+			return only_null
+		}
+	})
+
+	// 实现 println 函数打印对象
+	scope.set('println', BuiltinFunction{
+		datatype: .function
+		str: 'fn println(args ...object)'
+		func: fn (args ...Object) !Object {
+			mut out := []string{}
+			for arg in args {
+				out << arg.str()
+			}
+			println(out.join('\n'))
+
+			return only_null
+		}
+	})
+
+	// 实现 input 函数获取控制台输出
+	scope.set('input', BuiltinFunction{
+		datatype: .function
+		str: 'fn input(prompt string) string'
+		func: fn (args ...Object) !Object {
+			if args.len != 1 {
+				return error('内置函数 "input" 只接收 1 个传参, 而不是 ${args.len} 个')
+			}
+
+			prompt := args[0]
+			if prompt is String {
+				print(prompt.value)
+				return new_string(os.get_line())
+			}
+
+			return error('内置函数 "input" 的传参必须是 string 类型的对象')
+		}
+	})
+
+	// 实现 exit 函数退出程序
+	scope.set('exit', BuiltinFunction{
+		datatype: .function
+		str: 'fn exit(code int)'
+		func: fn (args ...Object) !Object {
+			if args.len != 1 {
+				return error('内置函数 "exit" 只接收 1 个传参, 而不是 ${args.len} 个')
+			}
+
+			code := args[0]
+			if code is Int {
+				exit(int(code.value))
+			}
+
+
+			return error('内置函数 "exit" 的传参必须是 int 类型的对象')
 		}
 	})
 
