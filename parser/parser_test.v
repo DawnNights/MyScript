@@ -5,6 +5,8 @@ import lexer
 
 fn test_main() {
 	l := lexer.new(r'
+# 这是一段注释内容
+# 这也是一段注释内容
 null;
 123;
 0.123;

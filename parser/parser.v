@@ -90,20 +90,21 @@ pub fn new(l &lexer.Lexer) !&Parser {
 		}
 
 		p.prefix_fn_table = {
-			.ident:        p.parse_ident
-			.int:          p.parse_int
-			.float:        p.parse_float
-			.@true:        p.parse_bool
-			.@false:       p.parse_bool
-			.char:         p.parse_char
-			.string:       p.parse_string
-			.function:     p.parse_function
-			.left_bracket: p.parse_list
-			.left_brace:   p.parse_table
-			.left_paren:   p.parse_group_expression
-			.bang_symbol:  p.parse_prefix_expression
-			.minus_symbol: p.parse_prefix_expression
-			.@if:          p.parse_if_expression
+			.comment_symbol: p.parse_comment
+			.ident:          p.parse_ident
+			.int:            p.parse_int
+			.float:          p.parse_float
+			.@true:          p.parse_bool
+			.@false:         p.parse_bool
+			.char:           p.parse_char
+			.string:         p.parse_string
+			.function:       p.parse_function
+			.left_bracket:   p.parse_list
+			.left_brace:     p.parse_table
+			.left_paren:     p.parse_group_expression
+			.bang_symbol:    p.parse_prefix_expression
+			.minus_symbol:   p.parse_prefix_expression
+			.@if:            p.parse_if_expression
 		}
 
 		p.infix_fn_table = {

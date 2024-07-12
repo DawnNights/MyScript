@@ -128,7 +128,7 @@ fn eval_call_expression(node ast.CallExpression, mut scope object.Scope) !object
 		mut local_scope := object.Scope{unsafe { &scope }, {}}
 
 		if args.len != callable.params.len {
-			return error('函数 `${node.callable.raw()}` 的传参应该是 ${callable.params.len} 个, 而不是 ${args.len} 个')
+			return error('函数 "${node.callable.raw()}" 的传参应该是 ${callable.params.len} 个, 而不是 ${args.len} 个')
 		}
 
 		for i := 0; i < callable.params.len; i++ {
@@ -144,7 +144,7 @@ fn eval_call_expression(node ast.CallExpression, mut scope object.Scope) !object
 		return object.only_null
 	}
 
-	return error('对象 `${callable}` 不是一个可调用函数')
+	return error('对象 "${callable}" 不是一个可调用函数')
 }
 
 // eval_index_expression 函数对索引表达式求值并返回对应对象

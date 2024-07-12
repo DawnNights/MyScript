@@ -1,5 +1,12 @@
 module ast
 
+// Comment 注释结构体, 表示程序中的注释内容
+pub struct Comment {
+	BaseExpression
+pub:
+	content string
+}
+
 // Identifier 标识符结构体, 表示程序中的变量或函数名等
 pub struct Identifier {
 	BaseExpression

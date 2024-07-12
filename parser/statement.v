@@ -79,7 +79,7 @@ fn (mut p Parser) parse_for_statement() !&ast.ForStatement {
 
 	// 解析赋值表达式
 	if p.next.t_type != .ident {
-		return error('`${p.next.t_raw}` 不是一个合理的标识符字面量')
+		return error('"${p.next.t_raw}" 不是一个合理的标识符字面量')
 	}
 
 	p.shift_token(1)!
