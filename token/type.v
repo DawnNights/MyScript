@@ -85,8 +85,10 @@ pub enum TokenType {
 	@else
 	// 关键字：表示 in 语句或操作符
 	@in
-	// 关键字：表示 for 循环
+	// 关键字：表示 for 遍历
 	@for
+	// 关键字：表示 while 循环
+	while
 }
 
 // 该方法返回 TokenType 枚举成员的字符串表示形式
@@ -134,5 +136,6 @@ pub fn (t_type TokenType) str() string {
 		.@else { 'ELSE' }
 		.@in { 'IN' }
 		.@for { 'FOR' }
+		.while { 'WHILE' }
 	}
 }

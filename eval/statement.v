@@ -25,3 +25,41 @@ fn eval_return_statement(node ast.ReturnStatement, mut scope object.Scope) !obje
 		value: obj
 	}
 }
+
+// eval_for_statement 函数对 for 语句求值
+fn eval_for_statement(node ast.ForStatement, mut scope object.Scope) !object.Object {
+	name := node.name.name
+	list := eval(node.list as ast.Node, mut scope)!.to_list()! as object.List
+
+	for elem in list.elems {
+		scope.set(name, elem)
+
+		for stmt in node.block.body {
+			result := eval(stmt as ast.Node, mut scope)!
+
+			if result is object.ReturnObject {
+				return result
+			}
+		}
+	}
+
+	return object.only_null
+}
+
+// eval_while_statement 函数对 while 语句求值
+fn eval_while_statement(node ast.WhileStatement, mut scope object.Scope) !object.Object {
+	mut condition := eval(node.condition as ast.Node, mut scope)!
+
+	for condition == object.only_true {
+		for stmt in node.block.body {
+			result := eval(stmt as ast.Node, mut scope)!
+
+			if result is object.ReturnObject {
+				return result
+			}
+		}
+		condition = eval(node.condition as ast.Node, mut scope)!
+	}
+
+	return object.only_null
+}

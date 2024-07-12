@@ -38,3 +38,40 @@ pub mut:
 pub fn (rs ReturnStatement) str() string {
 	return 'return ${rs.value}'
 }
+
+// ForStatement 遍历语句结构体, 表示一个遍历语句
+pub struct ForStatement {
+	BaseStatement
+pub mut:
+	name  &Identifier
+	list  Expression
+	block &BlockStatement
+}
+
+pub fn (fs ForStatement) str() string {
+	mut out := []string{}
+
+	for stmt in fs.block.body {
+		out << stmt.str()
+	}
+
+	return 'for (${fs.name} in ${fs.list}) {${out.join(';')}}'
+}
+
+// WhileStatement 循环语句结构体, 表示一个循环语句
+pub struct WhileStatement {
+	BaseStatement
+pub mut:
+	condition Expression
+	block     &BlockStatement
+}
+
+pub fn (ws WhileStatement) str() string {
+	mut out := []string{}
+
+	for stmt in ws.block.body {
+		out << stmt.str()
+	}
+
+	return 'while (${ws.condition}) {${out.join(';')}}'
+}

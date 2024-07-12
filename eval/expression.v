@@ -20,7 +20,11 @@ fn eval_infix_expression(node ast.InfixExpression, mut scope object.Scope) !obje
 		right := eval(node.right as ast.Node, mut scope)!
 
 		if node.left is ast.Identifier {
-			scope.set(node.left.name, right)
+			if right == object.only_null {
+				scope.del(node.left.name)
+			} else {
+				scope.set(node.left.name, right)
+			}
 			return object.only_null
 		}
 

@@ -46,7 +46,10 @@ fn (mut p Parser) parse_statement() !ast.Statement {
 			return p.parse_return_statement()!
 		}
 		.@for {
-			return error('暂未实现 for 语句解析')
+			return p.parse_for_statement()!
+		}
+		.while {
+			return p.parse_while_statement()!
 		}
 		else {
 			return p.parse_expr_statement()!
