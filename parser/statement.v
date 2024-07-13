@@ -106,7 +106,10 @@ fn (mut p Parser) parse_for_statement() !&ast.ForStatement {
 		return error(r'for 语句的执行的代码块内容应在完整的 "{}" 中')
 	}
 	p.shift_token(1)!
+
+	p.context << 'LOOP'
 	stmt.block = p.parse_block_statement()!
+	p.context.delete(p.context.len - 1)
 
 	// 如果表达式后有分号则跳过
 	if p.next.t_type == .semicolon_symbol {
@@ -144,7 +147,48 @@ fn (mut p Parser) parse_while_statement() !&ast.WhileStatement {
 		return error(r'while 语句执行的代码块内容应在完整的 "{}" 中')
 	}
 	p.shift_token(1)!
+
+	p.context << 'LOOP'
 	stmt.block = p.parse_block_statement()!
+	p.context.delete(p.context.len - 1)
+
+	// 如果表达式后有分号则跳过
+	if p.next.t_type == .semicolon_symbol {
+		p.shift_token(1)!
+	}
+
+	return &stmt
+}
+
+// parse_break_statement 方法解析 break 语句
+// 该语句用于立即退出所在的循环
+fn (mut p Parser) parse_break_statement() !&ast.BreakStatement {
+	if 'LOOP' !in p.context {
+		return error('break 语句必须在循环中使用')
+	}
+
+	stmt := ast.BreakStatement{
+		token: p.cur
+	}
+
+	// 如果表达式后有分号则跳过
+	if p.next.t_type == .semicolon_symbol {
+		p.shift_token(1)!
+	}
+
+	return &stmt
+}
+
+// parse_continue_statement 方法解析 continue 语句
+// 该语句用于跳过当前循环的剩余部分
+fn (mut p Parser) parse_continue_statement() !&ast.ContinueStatement {
+	if 'LOOP' !in p.context {
+		return error('continue 语句必须在循环中使用')
+	}
+
+	stmt := ast.ContinueStatement{
+		token: p.cur
+	}
 
 	// 如果表达式后有分号则跳过
 	if p.next.t_type == .semicolon_symbol {

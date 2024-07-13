@@ -51,6 +51,12 @@ fn (mut p Parser) parse_statement() !ast.Statement {
 		.while {
 			return p.parse_while_statement()!
 		}
+		.@break {
+			return p.parse_break_statement()!
+		}
+		.@continue {
+			return p.parse_continue_statement()!
+		}
 		else {
 			return p.parse_expr_statement()!
 		}

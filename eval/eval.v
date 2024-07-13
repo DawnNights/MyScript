@@ -60,6 +60,12 @@ pub fn eval(node ast.Node, mut scope object.Scope) !object.Object {
 		ast.WhileStatement{
 			return eval_while_statement(node, mut scope)
 		}
+		ast.BreakStatement{
+			return &object.BreakObject{datatype: .null}
+		}
+		ast.ContinueStatement{
+			return &object.ContinueObject{datatype: .null}
+		}
 		ast.PrefixExpression {
 			return eval_prefix_expression(node, mut scope)
 		}

@@ -157,3 +157,13 @@ pub struct ReturnObject {
 pub:
 	value Object
 }
+
+// BreakObject 结构体是对 break 语句的封装对象, 无实际作用
+pub struct BreakObject {
+	BaseObject
+}
+
+// ContinueObject 结构体是对 continue 语句的封装对象, 无实际作用
+pub struct ContinueObject {
+	BaseObject
+}

@@ -179,6 +179,14 @@ fn (mut l Lexer) is_keyword(mut tok token.Token) bool {
 			tok.t_type = .while
 			tok.t_raw = 'while'
 		}
+		'break' {
+			tok.t_type = .@break
+			tok.t_raw = 'break'
+		}
+		'continue' {
+			tok.t_type = .@continue
+			tok.t_raw = 'continue'
+		}
 		else {
 			return false
 		}

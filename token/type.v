@@ -89,6 +89,10 @@ pub enum TokenType {
 	@for
 	// 关键字：表示 while 循环
 	while
+	// 关键字：表示结束循环
+	@break
+	// 关键字：表示跳过循环
+	@continue
 }
 
 // 该方法返回 TokenType 枚举成员的字符串表示形式
@@ -137,5 +141,7 @@ pub fn (t_type TokenType) str() string {
 		.@in { 'IN' }
 		.@for { 'FOR' }
 		.while { 'WHILE' }
+		.@break { 'BREAK' }
+		.@continue { 'CONTINUE' }
 	}
 }

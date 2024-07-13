@@ -75,3 +75,21 @@ pub fn (ws WhileStatement) str() string {
 
 	return 'while (${ws.condition}) {${out.join(';')}}'
 }
+
+// BreakStatement 退出循环语句结构体
+pub struct BreakStatement {
+	BaseStatement
+}
+
+pub fn (bs BreakStatement) str() string {
+	return 'break'
+}
+
+// ContinueSatement 跳过循环语句结构体
+pub struct ContinueStatement {
+	BaseStatement
+}
+
+pub fn (cs ContinueStatement) str() string {
+	return 'continue'
+}

@@ -178,7 +178,7 @@
 
 ## 流程控制
 
-### if条件语句
+### if 条件语句
 
 ```
 num = 10;
@@ -196,27 +196,55 @@ love_you = false
 word = if (love_you) { '喜欢你' } else { '讨厌你' }	# '讨厌你'
 ```
 
-### for遍历语句
+### for 循环语句
+
+- for语句用来遍历一个可遍历(range，string，list，table)对象进行循环。
+
+- 通过`break`关键字可以立即退出所在的循环。
+- 通过`continue`关键字可以跳过当前循环的剩余部分。
 
 ```
 for (v in 0..5) {
-	# 此时 v 的值依次为: 0, 1, 2, 3, 4
+	print(v)	# 此时 v 的值依次为: 0, 1, 2, 3, 4
 }
 
-for (v in [true, '你好', 123.44]) {
-	# 此时 v 的值依次为: true, '你好', 123.44
+for (v in '我爱你中国') {
+	if (v == `你`) {
+		continue
+	}
+	print(v)	# 此时 v 的值依次为: `我`，`爱`，`中`，`国`
+}
+
+for (v in [123, true, 123.44, '你好']) {
+	if (v == 123.44) {
+		break
+	}
+	print(v)	# 此时 v 的值依次为: 123, true
 }
 
 for (v in {'name': '张三', 'age': 33}) {
-	# 此时 v 的值依次为: 'name', 'age'
+	print(v)	# 此时 v 的值依次为: 'name', 'age'
 }
 ```
 
-### while循环语句
+### while 循环语句
+
+- while 语句对一个条件进行判断并循环，当条件表达式的值为`true`进入循环，为`false`退出循环。
+- 通过`break`关键字可以立即退出所在的循环。
+- 通过`continue`关键字可以跳过当前循环的剩余部分。
 
 ```
-while (condition) {
-	# 当 condition 为 true 时该代码块会循环执行
+x = 10
+
+while (x > 0) {
+	x = x - 1
+	if (x == 6) {
+		continue
+	}
+	if (x == 3) {
+		break
+	}
+	print(x)	# 此时 x 的值依次为9，8，7，5，4
 }
 ```
 

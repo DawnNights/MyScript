@@ -40,6 +40,14 @@ fn eval_for_statement(node ast.ForStatement, mut scope object.Scope) !object.Obj
 			if result is object.ReturnObject {
 				return result
 			}
+
+			if result is object.BreakObject {
+				return object.only_null
+			}
+
+			if result is object.ContinueObject {
+				break
+			}
 		}
 	}
 
@@ -56,6 +64,14 @@ fn eval_while_statement(node ast.WhileStatement, mut scope object.Scope) !object
 
 			if result is object.ReturnObject {
 				return result
+			}
+
+			if result is object.BreakObject {
+				return object.only_null
+			}
+
+			if result is object.ContinueObject {
+				break
 			}
 		}
 		condition = eval(node.condition as ast.Node, mut scope)!
