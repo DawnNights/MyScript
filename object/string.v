@@ -88,6 +88,21 @@ pub fn (s String) not_equal(obj Object) !Object {
 	return only_true
 }
 
+pub fn (s String) has(obj Object) !Object {
+	if obj is Char{
+		if obj.value in s.unicodes {
+			return only_true
+		}
+	}
+	else if obj is String {
+		if s.value.index(obj.value) != none {
+			return only_true
+		}
+		
+	}
+	return only_false
+}
+
 pub fn (s String) get(idx Object) !Object {
 	if idx is Int {
 		mut i := idx.value

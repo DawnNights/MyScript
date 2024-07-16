@@ -2,7 +2,6 @@ module parser
 
 import ast
 import lexer
-import token
 
 // parse_comment 方法解析注释内容
 fn (mut p Parser) parse_comment() !ast.Expression {
@@ -46,10 +45,6 @@ fn (mut p Parser) parse_bool() !ast.Expression {
 
 // parse_char 方法解析字符表达式
 fn (mut p Parser) parse_char() !ast.Expression {
-	if p.next.t_type !in token.tokens_allow_after_string {
-		return error('${p.next.t_type} 不允许出现在字符定义后')
-	}
-
 	unicode, _ := lexer.get_rune_from_string(p.cur.t_raw)
 	return &ast.Char{
 		token: p.cur
@@ -59,10 +54,6 @@ fn (mut p Parser) parse_char() !ast.Expression {
 
 // parse_string 方法解析字符串表达式
 fn (mut p Parser) parse_string() !ast.Expression {
-	if p.next.t_type !in token.tokens_allow_after_string {
-		return error('${p.next.t_type} 不允许出现在字符串定义后')
-	}
-
 	return &ast.String{
 		token: p.cur
 		value: p.cur.t_raw

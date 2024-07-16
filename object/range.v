@@ -55,5 +55,11 @@ pub fn (r Range) has(obj Object) !Object {
 		}
 	}
 
+	if obj is Range{
+		if obj.start >= r.start && obj.end <= r.end {
+			return only_true
+		}
+	}
+
 	return only_false
 }

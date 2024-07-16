@@ -129,7 +129,7 @@ pub fn new(l &lexer.Lexer) !&Parser {
 			.@in:                   p.parse_infix_expression
 			.left_paren:            p.parse_call_expression
 			.left_bracket:          p.parse_index_expression
-			.point_symbol:          p.parse_point_expression
+			.point_symbol:          p.parse_member_expression
 		}
 
 		return p

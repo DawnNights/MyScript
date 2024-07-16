@@ -36,6 +36,14 @@ fn eval_infix_expression(node ast.InfixExpression, mut scope object.Scope) !obje
 			return object.only_null
 		}
 
+		if node.left is ast.MemberExpression {
+			mut self := eval(node.left.self as ast.Node, mut scope)!
+			member:= eval(node.left.member as ast.Node, mut scope)!
+
+			self.set(member, right)!
+			return object.only_null
+		}
+
 		return error('${node.left} 不是一个可赋值对象')
 	}
 
@@ -88,7 +96,7 @@ fn eval_infix_expression(node ast.InfixExpression, mut scope object.Scope) !obje
 			return error('范围表达式的左值和右值必须都是 int 对象')
 		}
 		.@in {
-			return left.has(right)
+			return right.has(left)
 		}
 		else {
 			return error('未定义的中缀运算符 "${node.token.t_type}"')
@@ -152,4 +160,72 @@ fn eval_index_expression(node ast.IndexExpression, mut scope object.Scope) !obje
 	left := eval(node.left as ast.Node, mut scope)!
 	index := eval(node.index as ast.Node, mut scope)!
 	return left.get(index)!
+}
+
+// eval_member_expression 函数对成员访问表达式求值并返回求值对象
+fn eval_member_expression(node ast.MemberExpression, mut scope object.Scope) !object.Object {
+	self := eval(node.self as ast.Node, mut scope)!
+
+	if node.member is ast.String {
+		name := eval(node.member, mut scope)!
+		result := self.get(name) or {
+			now_err := err
+			return scope.get('${self.datatype}.${node.member.value}') or {
+				return now_err
+			}
+		}
+
+		return result
+	}
+
+	if node.member is ast.CallExpression {
+		method_name := node.member.callable.token.t_raw
+		mut callable := object.only_null
+		mut args := []object.Object{}
+
+		for arg in node.member.arguments {
+			args << eval(arg as ast.Node, mut scope)!
+		}
+
+		if self is object.Table {
+			key := object.new_string(method_name)
+			if self.has(key)! == object.only_true {
+				callable = self.get(key)!
+			}
+		} 
+		
+		if callable == object.only_null {
+			callable = scope.get('${self.datatype}.${method_name}') or {
+				return error('成员方法 "${method_name}" 尚未定义')
+			}
+		}
+
+		// 调用对象为内置函数
+		if mut callable is object.BuiltinFunction {
+			return callable.func(...args)
+		}
+
+		// 调用对象为自定义函数
+		if mut callable is object.Function {
+			mut local_scope := object.Scope{unsafe { &scope }, {}}
+
+			if args.len != callable.params.len {
+				return error('成员方法 "${method_name}" 的传参应该是 ${callable.params.len - 1} 个, 而不是 ${args.len - 1} 个')
+			}
+
+			for i := 0; i < callable.params.len; i++ {
+				local_scope.set(callable.params[i].name, args[i])
+			}
+
+			// 求值对象为 return 语句返回结果
+			result := eval(callable.body, mut local_scope)!
+			if result is object.ReturnObject {
+				return result.value
+			}
+
+			return object.only_null
+		}
+	}
+
+	return error('"." 操作符的右侧必须该是标识符或者函数调用')
 }

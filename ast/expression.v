@@ -70,3 +70,14 @@ fn (ie IndexExpression) str() string {
 	return '(${ie.left.str()}[${ie.index.str()}])'
 }
 
+// MemberExpression 成员访问表达式结构体, 表示一个包含对象和对象成员名的访问操作
+pub struct MemberExpression {
+	BaseExpression
+pub mut:
+	self   Expression
+	member Expression
+}
+
+fn (me MemberExpression) str() string {
+	return '(${me.self}.${me.member})'
+}

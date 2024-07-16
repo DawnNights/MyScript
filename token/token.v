@@ -22,8 +22,8 @@ pub fn (t Token) precedence() Precedence {
 		.greater_assign_symbol, .equal_symbol, .not_equal_symbol { .compare }
 		.plus_symbol, .minus_symbol { .sum }
 		.asterisk_symbol, .slash_symbol { .product }
-		.bang_symbol { .prefix }
-		.range_symbol, .@in { .infix }
+		.bang_symbol, .@in { .prefix }
+		.range_symbol { .infix }
 		.left_paren { .call }
 		.left_bracket, .point_symbol { .index }
 		else { .lowest }

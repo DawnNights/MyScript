@@ -150,42 +150,38 @@ fn (mut p Parser) parse_index_expression(left ast.Expression) !ast.Expression {
 	return expr
 }
 
-// parse_point_expression 方法解析点运算符表达式并返回相应的节点
-// 点运算符表达式通常用于访问对象或结构体的成员变量或方法
-fn (mut p Parser) parse_point_expression(left ast.Expression) !ast.Expression {
+// parse_member_expression 方法解析成员访问表达式并返回相应的节点
+// 成员访问表达式包括被访问的左侧对象和用于访问的成员名称
+fn (mut p Parser) parse_member_expression(self ast.Expression) !ast.Expression {
 	tok := p.cur
 	p.shift_token(1)!
-	mut right := p.parse_expression(.prefix)!
+	mut expr := &ast.MemberExpression{
+		token: tok
+		self: self
+		member: unsafe { nil }
+	}
 
-	if mut right is ast.Identifier {
-		return &ast.IndexExpression{
-			token: tok
-			left: left
-			index: ast.String{
-				token: right.token
-				value: right.name
-			}
+
+	if p.cur.t_type != .ident {
+		return error('"." 操作符的右侧必须该是标识符或者函数调用')
+	}
+
+	if p.next.t_type == .left_paren {
+		expr.member = p.parse_expression(.lowest)!
+
+		if mut expr.member is ast.CallExpression {
+			expr.member.arguments.prepend(self)
+			return expr
+		}
+
+		if mut expr.member is ast.MemberExpression {
+			return error('因内部实现原因, 暂不支持调用成员方法后的链式访问')
 		}
 	}
 
-	if mut right is ast.CallExpression {
-		right.arguments.prepend(left)
-
-		callable := &ast.IndexExpression{
-			token: tok
-			left: left
-			index: ast.String{
-				token: right.callable.token
-				value: right.callable.token.t_raw
-			}
-		}
-
-		return &ast.CallExpression{
-			token: right.token
-			callable: callable
-			arguments: right.arguments
-		}
+	expr.member = ast.String{
+		token: p.cur
+		value: p.cur.t_raw
 	}
-
-	return error('字面量 "${right}" 无法作为 "." 运算符的索引值')
+	return expr
 }

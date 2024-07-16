@@ -1,14 +1,17 @@
 module main
 
 import os
+import term
 import ast
 import eval
 import lexer
-import object
 import parser
+import object
+import object.builtin { get_builtin_scope }
+
 
 fn main() {
-	mut scope := object.Scope{object.get_builtin_scope(), {}}
+	mut scope := object.Scope{get_builtin_scope(), {}}
 
 	if os.args.len == 1 {
 		start_interactive_mode(mut scope)
@@ -39,45 +42,72 @@ fn main() {
 		'-e', '-execute' {
 			if os.args.len >= 3 {
 				eval_script(os.args[2..].join(';'), mut scope) or {
-					println('ERROR: ' + err.msg())
+					println(term.rgb(255, 0, 0, 'ERROR: ' + err.msg()))
 					return
 				}
 			}
 		}
 		else {
-			println('无法识别的参数: "${os.args[1]}"')
+			println(term.rgb(255, 0, 0, '无法识别的参数: "${os.args[1]}"'))
 		}
 	}
 }
 
 fn exec_file_script(path string, mut scope object.Scope) {
 	if !os.exists(path) || !os.is_file(path) {
-		println('ERROR: "${path}" 路径指向的文件不存在')
+		println(term.rgb(255, 0, 0, 'ERROR: "${path}" 路径指向的文件不存在'))
 		return
 	}
 
 	input := os.read_file(path) or {
-		println('ERROR: 无法读取路径 "${path}" 指向的文件内容')
+		println(term.rgb(255, 0, 0, 'ERROR: 无法读取路径 "${path}" 指向的文件内容'))
 		return
 	}
 
 	eval_script(input, mut scope) or {
-		println('ERROR: ' + err.msg())
+		println(term.rgb(255, 0, 0, 'ERROR: ' + err.msg()))
 		return
 	}
 }
 
 fn start_interactive_mode(mut scope object.Scope) {
 	for {
-		print('>>> ')
 
-		list := eval_script(os.get_line(), mut scope) or {
-			println('ERROR: ' + err.msg())
+		mut input := os.input('>>> ')
+		mut context := []string{}
+
+		// 用于判断代码块是否闭合
+		for c in input {
+			if c == 123 {
+				context << 'LEFT_BRACE'
+			}
+
+			if c == 125 {
+				context.delete(0)
+			}
+		}
+
+		for context.len != 0 {
+			added := os.get_line()
+			for c in added {
+				if c == 123 {
+					context << 'LEFT_BRACE'
+				}
+
+				if c == 125 && context.len > 0 {
+					context.delete(0)
+				}
+			}
+			input = input + added
+		}
+
+		list := eval_script(input, mut scope) or {
+			println(term.rgb(255, 0, 0, 'ERROR: ' + err.msg()))
 			continue
 		}
 
 		for obj in list {
-			println(obj)
+			println(term.rgb(67, 142, 219, obj.str()))
 		}
 	}
 }

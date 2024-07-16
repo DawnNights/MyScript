@@ -57,14 +57,18 @@ pub fn eval(node ast.Node, mut scope object.Scope) !object.Object {
 		ast.ForStatement {
 			return eval_for_statement(node, mut scope)
 		}
-		ast.WhileStatement{
+		ast.WhileStatement {
 			return eval_while_statement(node, mut scope)
 		}
-		ast.BreakStatement{
-			return &object.BreakObject{datatype: .null}
+		ast.BreakStatement {
+			return &object.BreakObject{
+				datatype: .null
+			}
 		}
-		ast.ContinueStatement{
-			return &object.ContinueObject{datatype: .null}
+		ast.ContinueStatement {
+			return &object.ContinueObject{
+				datatype: .null
+			}
 		}
 		ast.PrefixExpression {
 			return eval_prefix_expression(node, mut scope)
@@ -80,6 +84,9 @@ pub fn eval(node ast.Node, mut scope object.Scope) !object.Object {
 		}
 		ast.IndexExpression {
 			return eval_index_expression(node, mut scope)
+		}
+		ast.MemberExpression{
+			return eval_member_expression(node, mut scope)
 		}
 		else {
 			return object.only_null
