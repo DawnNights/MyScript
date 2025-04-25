@@ -2,29 +2,36 @@ module main
 
 import os
 import term
-import ast
-import eval
-import lexer
-import parser
 import object
-import object.builtin { get_builtin_scope }
-
+import parser
+import lexer
+import compiler
+import vm
 
 fn main() {
-	mut scope := object.Scope{get_builtin_scope(), {}}
-
+	// 进入交互模式
 	if os.args.len == 1 {
-		start_interactive_mode(mut scope)
+		mut contants := []object.Object{}
+		mut globals := []object.Object{}
+		mut symbol_table := compiler.SymbolTable{}
+		for {
+			start_interactive_mode(mut contants, mut globals, mut symbol_table) or {
+				println(term.rgb(255, 0, 0, 'ERROR: ' + err.msg()))
+			}
+		}
 	}
 
+	// 编译代码文件
 	if os.exists(os.args[1]) && os.is_file(os.args[1]) {
-		exec_file_script(os.args[1], mut scope)
+		exec_file_script(os.args[1]) or { println(term.rgb(255, 0, 0, 'ERROR: ' + err.msg())) }
 		os.get_line()
+		return
 	}
 
+	// 识别命令行参数
 	match os.args[1] {
 		'-v', '-version' {
-			println('MyScript 0.0.1')
+			println('MyScript 0.0.2')
 		}
 		'-h', '-help' {
 			println('MyScript使用方式: myscript.exe [option] [...args]')
@@ -36,13 +43,16 @@ fn main() {
 		}
 		'-f', '-file' {
 			if os.args.len >= 3 && os.exists(os.args[2]) && os.is_file(os.args[2]) {
-				exec_file_script(os.args[2], mut scope)
+				exec_file_script(os.args[2]) or {
+					println(term.rgb(255, 0, 0, 'error: ' + err.msg()))
+					return
+				}
 			}
 		}
 		'-e', '-execute' {
 			if os.args.len >= 3 {
-				eval_script(os.args[2..].join(';'), mut scope) or {
-					println(term.rgb(255, 0, 0, 'ERROR: ' + err.msg()))
+				exec_script(os.args[2..].join(';')) or {
+					println(term.rgb(255, 0, 0, 'error: ' + err.msg()))
 					return
 				}
 			}
@@ -53,77 +63,67 @@ fn main() {
 	}
 }
 
-fn exec_file_script(path string, mut scope object.Scope) {
-	if !os.exists(path) || !os.is_file(path) {
-		println(term.rgb(255, 0, 0, 'ERROR: "${path}" 路径指向的文件不存在'))
-		return
-	}
-
-	input := os.read_file(path) or {
-		println(term.rgb(255, 0, 0, 'ERROR: 无法读取路径 "${path}" 指向的文件内容'))
-		return
-	}
-
-	eval_script(input, mut scope) or {
-		println(term.rgb(255, 0, 0, 'ERROR: ' + err.msg()))
-		return
-	}
+fn exec_file_script(path string) ! {
+	input := os.read_file(path)!
+	exec_script(input)!
 }
 
-fn start_interactive_mode(mut scope object.Scope) {
-	for {
+fn exec_script(script string) ! {
+	l := lexer.new(script)
+	mut p := parser.new(l)!
 
-		mut input := os.input('>>> ')
-		mut context := []string{}
+	mut c := compiler.new()
+	c.compile(p.parse_program()!)!
 
-		// 用于判断代码块是否闭合
-		for c in input {
+	bytecode := c.bytecode()
+
+	mut v := vm.new(bytecode)
+	v.run()!
+}
+
+fn start_interactive_mode(mut constants []object.Object, mut globals []object.Object, mut symbol_table compiler.SymbolTable) ! {
+	mut input := os.input('>>> ')
+	mut context := []string{}
+
+	// 用于判断代码块是否闭合
+	for c in input {
+		if c == 123 {
+			context << 'LEFT_BRACE'
+		}
+
+		if c == 125 {
+			context.delete(0)
+		}
+	}
+
+	for context.len != 0 {
+		added := os.get_line()
+		for c in added {
 			if c == 123 {
 				context << 'LEFT_BRACE'
 			}
 
-			if c == 125 {
+			if c == 125 && context.len > 0 {
 				context.delete(0)
 			}
 		}
-
-		for context.len != 0 {
-			added := os.get_line()
-			for c in added {
-				if c == 123 {
-					context << 'LEFT_BRACE'
-				}
-
-				if c == 125 && context.len > 0 {
-					context.delete(0)
-				}
-			}
-			input = input + added
-		}
-
-		list := eval_script(input, mut scope) or {
-			println(term.rgb(255, 0, 0, 'ERROR: ' + err.msg()))
-			continue
-		}
-
-		for obj in list {
-			println(term.rgb(67, 142, 219, obj.str()))
-		}
-	}
-}
-
-fn eval_script(input string, mut scope object.Scope) ![]object.Object {
-	mut list := []object.Object{}
-	mut p := parser.new(lexer.new(input))!
-	program := p.parse_program()!
-
-	for stmt in program.body {
-		result := eval.eval(stmt as ast.Node, mut scope)!
-
-		if result != object.only_null {
-			list << result
-		}
+		input = input + added
 	}
 
-	return list
+	l := lexer.new(input)
+	mut p := parser.new(l)!
+
+	mut c := compiler.new_with_state(symbol_table, constants)
+	c.compile(p.parse_program()!)!
+
+	bytecode := c.bytecode()
+	constants = unsafe { bytecode.constants }
+	symbol_table = unsafe { bytecode.symbol_table }
+
+	mut v := vm.new_with_state(bytecode, globals)
+	v.run()!
+	if v.stack.len > 0 && v.stack[0] != object.only_null {
+		println(term.rgb(67, 142, 219, v.stack[0].str()))
+	}
+	globals = unsafe { v.globals }
 }

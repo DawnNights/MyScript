@@ -126,7 +126,7 @@ pub fn (mut l List) set(idx Object, obj Object) ! {
 		return error('设置值时, 列表的索引必须是 int 类型的值')
 	}
 
-	mut i := (idx as Int).value
+	mut i := int( (idx as Int).value )
 	if i < 0 {
 		i = l.elems.len + i
 	}

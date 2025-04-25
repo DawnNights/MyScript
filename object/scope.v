@@ -8,6 +8,10 @@ pub mut:
 	store map[string]Object = {}
 }
 
+pub fn (s Scope) str() string {
+  return 'Scope{ parent: &${voidptr(s.parent)} }'
+}
+
 // get 方法从作用域中获取指定名称的对象
 pub fn (s &Scope) get(name string) !Object {
 	if name == 'null' {

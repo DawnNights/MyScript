@@ -2,13 +2,14 @@ module builtin
 
 import os
 import term
+import time
 import object
 
 fn new_builtin(str string, func fn (...object.Object) !object.Object) object.Object {
 	return &object.BuiltinFunction{
 		datatype: .function
-		str: str
-		func: func
+		str:      str
+		func:     func
 	}
 }
 
@@ -24,6 +25,7 @@ pub fn get_builtin_scope() &object.Scope {
 	scope.set('input', new_builtin('fn input(prompt string) string', builtin_input))
 	scope.set('exit', new_builtin('fn exit(code int)', builtin_exit))
 	scope.set('clone', new_builtin('fn clone(arg object) object', builtin_clone))
+	scope.set('time', new_builtin('fn time() table', builtin_time))
 
 	// 为作用域添加类型转换函数
 	scope.set('bool', new_builtin('fn bool(arg object) bool', builtin_bool))
@@ -39,8 +41,15 @@ pub fn get_builtin_scope() &object.Scope {
 	scope.set('string.upper', new_builtin('fn string.upper() string', string_upper))
 	scope.set('string.count', new_builtin('fn string.count(sub_str string) int', string_count))
 	scope.set('string.index', new_builtin('fn string.index(sub_str string) int', string_index))
-	scope.set('string.replace', new_builtin('fn string.replace(rep string, with string) string', string_replace))
-	scope.set('string.format', new_builtin('fn string.format(args ...object) string', string_format))
+	scope.set('string.replace', new_builtin('fn string.replace(rep string, with string) string',
+		string_replace))
+	scope.set('string.format', new_builtin('fn string.format(args ...object) string',
+		string_format))
+
+	// 为作用域添加列表内置方法
+	scope.set('list.frist', new_builtin('fn list.frist() object', list_frist))
+	scope.set('list.last', new_builtin('fn list.last() object', list_last))
+	scope.set('list.reverse', new_builtin('fn list.reverse()', list_reverse))
 
 	return &scope
 }
@@ -57,19 +66,19 @@ fn builtin_len(args ...object.Object) !object.Object {
 		object.String {
 			return &object.Int{
 				datatype: .int
-				value: arg.unicodes.len
+				value:    arg.unicodes.len
 			}
 		}
 		object.List {
 			return &object.Int{
 				datatype: .int
-				value: arg.elems.len
+				value:    arg.elems.len
 			}
 		}
 		object.Table {
 			return &object.Int{
 				datatype: .int
-				value: arg.pairs.len
+				value:    arg.pairs.len
 			}
 		}
 		else {
@@ -98,7 +107,6 @@ fn builtin_print(args ...object.Object) !object.Object {
 		}
 	}
 
-	
 	print(term.rgb(67, 142, 219, out.join(' ')))
 
 	return object.only_null
@@ -157,18 +165,55 @@ fn builtin_clone(args ...object.Object) !object.Object {
 	if arg is object.List {
 		return &object.List{
 			datatype: .list
-			elems: arg.elems.clone()
+			elems:    arg.elems.clone()
 		}
 	}
 
 	if arg is object.Table {
 		return &object.Table{
 			datatype: .table
-			pairs: arg.pairs.clone()
+			pairs:    arg.pairs.clone()
 		}
 	}
 
 	return arg
+}
+
+// builtin_time 函数用于获取时间
+fn builtin_time(args ...object.Object) !object.Object {
+	if args.len != 0 {
+		return error('内置函数 "time" 没有传参')
+	}
+
+	now := time.now()
+	unix := now.unix()
+	mut pairs := map[u64][]object.Object{}
+
+	pairs[4529160379687933655] = pair_str_int('year', now.year)
+	pairs[6763692497213297715] = pair_str_int('month', now.month)
+	pairs[6916137823918662716] = pair_str_int('day', now.day)
+	pairs[6370219436190560914] = pair_str_int('hour', now.hour)
+	pairs[8842083489598056460] = pair_str_int('minute', now.minute)
+	pairs[5198021219645224562] = pair_str_int('second', now.second)
+	pairs[10850537461975135521] = pair_str_int('unix', unix)
+
+	return object.Table{
+		datatype: .table
+		pairs:    pairs
+	}
+}
+
+fn pair_str_int(s string, i i64) []object.Object {
+	return [
+		object.String{
+			datatype: .string
+			value:    s
+		},
+		object.Int{
+			datatype: .int
+			value:    i
+		},
+	]
 }
 
 // 以下函数用于进行类型转换

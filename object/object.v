@@ -168,18 +168,3 @@ pub struct ContinueObject {
 	BaseObject
 }
 
-// BuiltinFunction 结构体是内置的函数类型对象
-pub struct BuiltinFunction {
-	BaseObject
-pub:
-	str  string
-	func fn (...Object) !Object = unsafe { nil }
-}
-
-pub fn (bf BuiltinFunction) str() string {
-	return bf.str
-}
-
-pub fn (bf BuiltinFunction) to_string() !Object {
-	return new_string(bf.str)
-}

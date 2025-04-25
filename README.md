@@ -131,17 +131,17 @@
   | :----------------------------- | :----------------------------------------- |
   | fn len(arg object) int         | 计算指定对象(string\|list\|table)的长度    |
   | fn type(arg object) string     | 获取对象类型的字符串                       |
+  | fn print(args ...object)       | 打印不定长度的对象                         |
+  | fn println(args ...object)     | 打印不定长度的对象并换行                   |
+  | fn input(prompt string) string | 从控制台获取一段输入，prompt参数为提示内容 |
+  | fn clone(arg object) object    | 将对象拷贝一份并返回                       |
+  | fn time() table                | 获取当前时间对象                           |
   | fn bool(arg object) bool       | 将对象转换为 bool 对象并返回               |
   | fn char(arg object) bool       | 将对象转换为 char 对象并返回               |
   | fn float(arg object) bool      | 将对象转换为 float 对象并返回              |
   | fn int(arg object) bool        | 将对象转换为 int 对象并返回                |
   | fn list(arg object) bool       | 将对象转换为 list 对象并返回               |
   | fn string(object) string       | 将对象转换为 string 对象并返回             |
-  | fn clone(arg object) object    | 将对象拷贝一份并返回                       |
-  | fn print(args ...object)       | 打印不定长度的对象                         |
-  | fn println(args ...object)     | 打印不定长度的对象并换行                   |
-  | fn input(prompt string) string | 从控制台获取一段输入，prompt参数为提示内容  |
-
   
 
 ### list 列表类型
@@ -333,6 +333,12 @@ person.show()	# 我的名字是张三，我今年30岁
 | fn string.upper() string                          | 将字符串中的字母转为大写字母并返回                           |
 | fn string.count(sub_str string) int               | 统计字符串中子字符串的出现次数并返回                         |
 | fn string.index(sub_str string) int               | 返回子字符串在字符串中第一次出现的索引位置, 如果没有则返回-1 |
-| fn string.replace(rep string, with string) string | 将替换字符串中所有的子字符串rep，替换为新的子字符串with并返回 |
+| fn string.replace(rep string, with string) string | 将替换字符串中所有的子字符串rep，替换为新的子字符串with并返回|
 | fn string.format(args ...object) string           | 按顺序将参数替换为字符串中的格式化字符串                     |
 
+### 内置列表方法
+| 方法定义                                          | 方法作用                                                     |
+| ------------------------------------------------- | ------------------------------------------------------------ |
+| fn list.reverse()                                 | 将当前列表反转                                               |
+| fn list.frist() object                            | 返回列表中的第一个元素对象                                   |
+| fn list.last() object                             | 返回列表中的最后一个元素对象                                 |
